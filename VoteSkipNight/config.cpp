@@ -1,50 +1,54 @@
 class CfgPatches
 {
-	class VoteSkipNight
+	class ExpansionVoteSkipNight
 	{
-		requiredAddons[]=
-		{
-			//""
+		requiredAddons[]={
+			"DayZExpansion_Core",
+			"DayZExpansion_Scripts"
 		};
 	};
 };
-
 class CfgMods
 {
-	class VoteSkipNight
+	class ExpansionVoteSkipNight
 	{
-		dir="VoteSkipNight";
-		name="VoteSkipNight";
+		dir="ExpansionVoteSkipNight";
+		name="ExpansionVoteSkipNight";
 		credits="Mka0207";
 		author="Mka0207";
-	    type = "mod";
+		type="mod";
 		dependencies[]=
 		{
 			"Game",
 			"World",
 			"Mission"
 		};
-		
-	    class defs
-	    {
+		class defs
+		{
 			class gameScriptModule
-            {
-                value="";
-                files[]={"VoteSkipNight/scripts/3_Game"};
-            };
-			
-            class worldScriptModule
-            {
-                value="";
-                files[]={"VoteSkipNight/scripts/4_World"};
-            };
-             
-			
-            class missionScriptModule
-            {
-                value="";
-                files[]={"VoteSkipNight/scripts/5_Mission"};
-            };
-        };
-    };
+			{
+				value="";
+				files[]=
+				{
+					"ExpansionVoteSkipNight/Scripts/3_Game"
+				};
+			};
+			class worldScriptModule
+			{
+				value="";
+				files[]=
+				{
+					"ExpansionVoteSkipNight/Scripts/4_World"
+				};
+			};
+			class missionScriptModule
+			{
+				value="";
+				files[]=
+				{
+					"ExpansionVoteSkipNight/Scripts/5_Mission"
+				};
+			};
+		};
+	};
 };
