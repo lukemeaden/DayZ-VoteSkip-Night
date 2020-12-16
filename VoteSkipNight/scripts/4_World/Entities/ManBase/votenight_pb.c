@@ -1,4 +1,3 @@
-//Class that are modded to be overridden!
 modded class PlayerBase extends ManBase
 {	
 	const float Vote_Night_WarnInterval = 10;
@@ -11,6 +10,8 @@ modded class PlayerBase extends ManBase
 		super.Init();
 		if ( GetGame().IsClient() )
 		{
+			Print( VotePool );
+			Print( VotePool.Count() );
 			if ( VotePool.Count() <= 0 ) 
 			{
 				VotePool = new set<string>;
@@ -20,10 +21,13 @@ modded class PlayerBase extends ManBase
 
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
 	{
+		// Print( "[VSN] OnRPC()" );
 		super.OnRPC(sender, rpc_type, ctx);	
-			
+
 		if ( GetGame().IsClient() )
 		{
+			// Print( "[VSN] OnRPC() IsClient() START" );
+			PlayerBase c_player = PlayerBase.Cast( GetGame().GetPlayer() );
 			if (rpc_type == VOTE_NIGHT.SKIPNIGHT_NOTIFY)
 			{								
 				string result;
@@ -31,27 +35,14 @@ modded class PlayerBase extends ManBase
 
 				if ( result == "win" )
 				{
-					Print("[VSN] Vote was successful so skip to night");
-
-					if ( GetExpansionVoteSkipNightConfig().UseNotifications )
-					{
-						NotificationSystem.CreateNotification( new StringLocaliser( "VOTE NIGHT SKIP" ), new StringLocaliser( GetExpansionVoteSkipNightConfig().GetMessage( GetExpansionVoteSkipNightConfig().MessageVoteSuccess ) ), EXPANSION_NOTIFICATION_ICON_T_Compass, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, sender );
-					} else {
-						this.Message( GetExpansionVoteSkipNightConfig().GetMessage( GetExpansionVoteSkipNightConfig().MessageVoteSuccess, true ) , "colorAction" );
-					}
-
+					VoteSkipNight.VSN_Alert( GetVSN().MessageVoteSuccess, c_player, "success" );
 					VotePool.Clear();
 				}
 			}
 
 			if (rpc_type == VOTE_NIGHT.SKIPNIGHT_NOTIFY_FAIL)
 			{
-				if ( GetExpansionVoteSkipNightConfig().UseNotifications )
-				{
-					NotificationSystem.CreateNotification( new StringLocaliser( "VOTE NIGHT SKIP" ), new StringLocaliser( GetExpansionVoteSkipNightConfig().GetMessage( GetExpansionVoteSkipNightConfig().MessageDuplicateVote ) ), EXPANSION_NOTIFICATION_ICON_T_Compass, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, sender );
-				} else {
-					this.Message( GetExpansionVoteSkipNightConfig().GetMessage( GetExpansionVoteSkipNightConfig().MessageDuplicateVote, true ), "colorAction" );
-				}
+				VoteSkipNight.VSN_Alert( GetVSN().MessageDuplicateVote, c_player, "error" );
 			}
 
 			if (rpc_type == VOTE_NIGHT.SKIPNIGHT_SYNC_VOTEPOOL)
@@ -61,32 +52,34 @@ modded class PlayerBase extends ManBase
 
 				if ( votes_left > 0 )
 				{
-					this.Message( GetExpansionVoteSkipNightConfig().GetMessage( GetExpansionVoteSkipNightConfig().MessageRemainingVotes, true, true, votes_left.ToString() ) , "colorAction");
+					VoteSkipNight.VSN_Alert( GetVSN().MessageRemainingVotes, c_player, "error", true, false, true, "" + votes_left );
 				}
 			}
+			// Print( "[VSN] OnRPC() IsClient() END" );
 		}
 
 		if ( GetGame().IsServer() )
 		{
+			// Print( "[VSN] OnRPC() IsServer() START" );
 			if (rpc_type == VOTE_NIGHT.SKIPNIGHT_VOTE)
 			{								
-				int desired_id = ExpansionVoteSkipNight.VotePool.Find( sender.GetId() );
-				if ( !ExpansionVoteSkipNight.VotePool.Get( desired_id ) )
+				int desired_id = VoteSkipNight.VotePool.Find( sender.GetId() );
+				if ( !VoteSkipNight.VotePool.Get( desired_id ) )
 				{
 					if ( GetGame().GetWorld().IsNight() )
 					{
-						if ( !ExpansionVoteSkipNight.m_HasVoteEnded )
+						if ( !VoteSkipNight.m_HasVoteEnded )
 						{
-							ExpansionVoteSkipNight.VotePool.Insert( sender.GetId() );
-							ExpansionVoteSkipNight.UpdatePlayerCount();
-							ExpansionVoteSkipNight.CalculateVoteWinner();
+							VoteSkipNight.VotePool.Insert( sender.GetId() );
+							VoteSkipNight.UpdatePlayerCount();
+							VoteSkipNight.CalculateVoteWinner();
 
-							int RequiredVotes = Math.Ceil( ExpansionVoteSkipNight.CurrentNumOfPlys * 1 );
-							int CurrentNumVotes = ExpansionVoteSkipNight.VotePool.Count();
+							int RequiredVotes = VoteSkipNight.returnRequiredVotes();
+							int CurrentNumVotes = VoteSkipNight.VotePool.Count();
 							int diff = RequiredVotes-CurrentNumVotes;
 
 							//let players know how many votes are left.
-							foreach ( Man player: ExpansionVoteSkipNight.CurrentArrayOfPlys )
+							foreach ( Man player: VoteSkipNight.CurrentArrayOfPlys )
 							{
 								PlayerBase m_Player;
 								m_Player = PlayerBase.Cast(player);
@@ -104,7 +97,8 @@ modded class PlayerBase extends ManBase
 					warn = new Param1<string>( "" );
 					this.RPCSingleParam( VOTE_NIGHT.SKIPNIGHT_NOTIFY_FAIL, warn, true, this.GetIdentity() );
 				}
-			}											
+			}	
+			// Print( "[VSN] OnRPC() IsServer() END" );										
 		}
 	}
 }
