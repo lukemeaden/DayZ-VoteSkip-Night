@@ -15,13 +15,20 @@ modded class MissionServer extends MissionBase
 	{
 		super.TickScheduler(timeslice);
 
+		// Print( "[VSN] TickScheduler()" );
 		if ( GetGame().GetWorld().IsNight() )
 		{
 			AdCheckTimer += timeslice;
+			// Print( "[VSN] TickScheduler() IsNight()" + AdCheckTimer );
 
 			if ( AdCheckTimer > ADVERT_DELAY )
 			{
+				// Print( "[VSN] TickScheduler() IsNight() should send message" );
 				GetGame().GetPlayers( GetPlys );
+				// Print( "[VSN] TickScheduler() IsNight() send message: " + GetVSN().GetMessage( GetVSN().MessageVoteAdvert ) );
+				// Print( "[VSN] TickScheduler() IsNight() template message: " + GetVSN().GetMessage( GetVSN().MessageVoteAdvert, true, true, GetVSN().Command ) );
+				Param1<string> params2;
+				params2 = new Param1<string>( GetVSN().GetMessage( GetVSN().MessageVoteAdvert, true, true, GetVSN().Command ) );
 
 				foreach ( Man ply: GetPlys )
 				{
@@ -29,8 +36,6 @@ modded class MissionServer extends MissionBase
 					Class.CastTo(play, ply);
 					if ( play )
 					{
-						Param1<string> params2;
-						params2 = new Param1<string>( GetVSN().GetMessage( GetVSN().MessageVoteAdvert, true, true, GetVSN().Command ) );
 						play.RPCSingleParam( ERPCs.RPC_USER_ACTION_MESSAGE, params2, true, play.GetIdentity() );
 					}
 				}

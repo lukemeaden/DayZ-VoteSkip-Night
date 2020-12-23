@@ -28,7 +28,7 @@ class VoteSkipNight
 
 	static void VSN_Log( string message )
 	{
-		Print( "[VSN] " + message );
+		// Print( "[VSN] " + message );
 	}
 
 	static void VSN_Alert( string message, PlayerBase player, string color = "default", bool forceMessage = false, bool usePrefix = false, bool useTemplate = false, string templateString = "" )
@@ -36,6 +36,7 @@ class VoteSkipNight
 		PlayerIdentity sender = player.GetIdentity();
 		if ( !GetVSN().ShouldUseNotifications() )
 		{
+			Print( "[VSN] ShouldUseNotifications() = false" );
 			string msgColor;
 			switch (color)
 			{
@@ -56,6 +57,8 @@ class VoteSkipNight
 		}
 		else
 		{
+			#ifdef EXPANSIONMOD
+			Print( "[VSN] ShouldUseNotifications() = true" );
 			int expColor;
 			switch (color)
 			{
@@ -73,6 +76,7 @@ class VoteSkipNight
 					break;
 			}
 			NotificationSystem.CreateNotification( new StringLocaliser( GetVSN().MessagePrefix ), new StringLocaliser( GetVSN().GetMessage( message, false, useTemplate, templateString ) ), EXPANSION_NOTIFICATION_ICON_T_Compass, expColor, 7, sender );
+			#endif
 		}
 	}
 

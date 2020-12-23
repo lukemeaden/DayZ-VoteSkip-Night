@@ -22,7 +22,7 @@ class VoteSkipNightConfig
 
     void Load()
     {
-        Print( "[VSN] Load config" );
+        // Print( "[VSN] Load config" );
         if (FileExist( VoteSkipNightJSON ))
         {
             JsonFileLoader <VoteSkipNightConfig>.JsonLoadFile( VoteSkipNightJSON, this );
@@ -33,14 +33,22 @@ class VoteSkipNightConfig
 
     string GetMessage( string message, bool usePrefix = false, bool useTemplate = false, string templateString = "" )
     {
+        // Print( "[VSN] Original message: " + message );
         switch (true)
         {
             case (usePrefix && useTemplate):
-                return "[" + MessagePrefix + "] " + message.Replace( "$$0$$", templateString ) ;
+                message.Replace( "$$0$$", templateString );
+                string ptMessage = "[" + MessagePrefix + "] " + message + "";
+                // Print( "[VSN] Prefix and template message: " + ptMessage );
+                return ptMessage;
             case usePrefix:
-                return "[" + MessagePrefix + "] " + message;
+                string pMessage = "[" + MessagePrefix + "] " + message + "";
+                // Print( "[VSN] Prefix message: " + pMessage );
+                return pMessage;
             case useTemplate:
-                return message;
+                string tMessage = "" + message.Replace( "$$0$$", templateString ) + "";
+                // Print( "[VSN] Template message: " + tMessage );
+                return tMessage;
         }
         return message;
     }
@@ -54,7 +62,15 @@ class VoteSkipNightConfig
 
     bool ShouldUseNotifications()
     {
-        if (IsModLoaded("ExpansionVehicleBase")) return UseNotifications;
+        if (IsModLoaded("ExpansionVehicleBase"))
+        {
+            #ifdef EXPANSIONMOD
+            return UseNotifications;
+            #else
+            return false;
+            #endif
+        }
+
         return false;
     }
 }

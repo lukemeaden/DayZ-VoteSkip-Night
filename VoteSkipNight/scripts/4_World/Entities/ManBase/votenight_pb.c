@@ -10,8 +10,8 @@ modded class PlayerBase extends ManBase
 		super.Init();
 		if ( GetGame().IsClient() )
 		{
-			Print( VotePool );
-			Print( VotePool.Count() );
+			// Print( "[VSN] VotePool = " + VotePool );
+			// Print( "[VSN] VotePool.Count() = " + VotePool.Count() );
 			if ( VotePool.Count() <= 0 ) 
 			{
 				VotePool = new set<string>;
